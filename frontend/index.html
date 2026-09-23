@@ -6,36 +6,69 @@
   <style>
     body { font-family: sans-serif; margin: 0; background: #1c1917; color: #f5f5f4; }
     header { display: flex; gap: 12px; align-items: center; padding: 12px 20px; background: #44403c; }
-    main { max-width: 760px; margin: 20px auto; padding: 0 12px; }
-    input, button { padding: 8px; margin-right: 8px; }
+    header nav a { color: #fcd34d; margin-right: 12px; cursor: pointer; text-decoration: underline; }
+    header nav a.active { color: #f5f5f4; text-decoration: none; font-weight: bold; }
+    #spacer { flex: 1; }
+    main { max-width: 820px; margin: 20px auto; padding: 0 12px; }
+    input, button, select { padding: 8px; margin-right: 8px; }
+    button { cursor: pointer; }
     .alarm { color: #fca5a5; } .ok { color: #86efac; }
+    .state-有效 { color: #86efac; } .state-已过期, .state-已作废 { color: #fca5a5; }
     #live { min-height: 1.4em; }
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     td, th { border-bottom: 1px solid #57534e; padding: 6px; text-align: left; }
+    .hint { color: #a8a29e; font-size: 0.9em; }
   </style>
 </head>
 <body>
   <header>
     <strong>矿井瓦斯班测台</strong>
+    <nav id="nav" hidden>
+      <a id="nav-readings" class="active">班测</a>
+      <a id="nav-certs">校准证</a>
+    </nav>
+    <span id="spacer"></span>
     <span id="who"></span>
     <button id="out" hidden>退出</button>
   </header>
   <main>
     <section id="login">
-      <p>检查员上报测点甲烷，达到 1% 会立刻推到已打开的页面。这不是图表看板。</p>
+      <p>检查员上报测点甲烷，达到 1% 会立刻推到已打开的页面。上报必须绑定未作废且未过期的仪器校准证。</p>
       <input id="user" value="gasman" />
       <input id="pass" type="password" value="gas123456" />
       <button id="go">登录</button>
-      <p>gasman / gas123456 可上报；viewer / view123456 只能看</p>
+      <p>gasman / gas123456 可上报、可建证；viewer / view123456 只能翻证册和看记录</p>
     </section>
+
     <section id="app" hidden>
-      <p id="live">等待推送</p>
-      <form id="form">
-        <input id="site" placeholder="测点" />
-        <input id="ch4" type="number" step="0.01" placeholder="甲烷 %" />
-        <button>上报</button>
-      </form>
-      <table><thead><tr><th>测点</th><th>甲烷 %</th><th>状态</th><th>说明</th></tr></thead><tbody id="rows"></tbody></table>
+      <div id="page-readings">
+        <p id="live">等待推送</p>
+        <form id="form">
+          <input id="site" placeholder="测点" />
+          <input id="ch4" type="number" step="0.01" placeholder="甲烷 %" />
+          <select id="cert"></select>
+          <button>上报</button>
+          <p class="hint" id="cert-hint"></p>
+        </form>
+        <table>
+          <thead><tr><th>测点</th><th>甲烷 %</th><th>状态</th><th>说明</th><th>仪器</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+
+      <div id="page-certs" hidden>
+        <h3>校准证册</h3>
+        <form id="cert-form">
+          <input id="new-instrument" placeholder="仪器编号" />
+          <input id="new-expires" type="date" />
+          <button>新建证</button>
+          <span class="hint">检查员可新建证、改截止日、作废证；截止日当天仍有效，过期或已作废的证不能上报。</span>
+        </form>
+        <table>
+          <thead><tr><th>仪器编号</th><th>截止日</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="cert-rows"></tbody>
+        </table>
+      </div>
     </section>
   </main>
   <script src="/app.js"></script>
